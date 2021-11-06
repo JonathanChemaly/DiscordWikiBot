@@ -1,7 +1,12 @@
 const https = require('https')
-import { Http2ServerRequest } from 'http2';
+const jsdom = require("jsdom");
+const { JSDOM } = jsdom;
+
 import Command from '../model/Command'
+
 var wiki = "";
+var text = "";
+
 const loadWiki: Command = {
     name: 'loadWiki',
     description: 'Select the wiki that you want to access',
@@ -11,15 +16,19 @@ const loadWiki: Command = {
         if (args == undefined){
             return;
         }
-        wiki = args[0];
-        message.channel.send(wiki + " wiki was selected!")
+        text = args.join(' ');
+        wiki = args.join('+');
+        message.channel.send(text + " wiki was selected!")
 
-        https.get('https://www.fandom.com', (res: any) => {
+        https.get('https://www.fandom.com/?s=' + wiki, (res: any) => {
             console.log('statusCode:', res.statusCode);
             console.log('headwers:', res.headers);
 
             res.on('data', (d: any) => {
                 process.stdout.write(d);
+
+                const dom = new JSDOM(d);
+                console.log(dom.window.document.querySelector(".top-community").textContent);
             });
 
         }).on('error', (e: any) => {
