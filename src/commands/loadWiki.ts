@@ -25,8 +25,7 @@ const loadWiki: Command = {
 
         const dom = await JSDOM.fromURL('https://www.fandom.com/?s=' + wiki);
 
-        const topCommunityLink = dom.window.document.querySelector("div .top-community > a").href
-        link = topCommunityLink;
+        link = dom.window.document.querySelector("div .top-community > a").href
         console.log(link);
     }
 }
