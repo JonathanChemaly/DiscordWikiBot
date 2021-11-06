@@ -1,5 +1,7 @@
-import { globalData, searchForWiki, searchForItem } from '../common'
+import { globalData, searchForWiki, searchForItem, search as searchDOM } from '../common'
 import Command from '../model/Command'
+const htmlToImage = require('node-html-to-image')
+const { MessageAttachment } = require('discord.js')
 
 const search: Command = {
     name: 'Search for an Item',
@@ -37,7 +39,24 @@ const search: Command = {
 
         message.channel.send(`Searching \"${searchText}\" on ${localWikiName}...`)
         const [topLink, name] = await searchForItem(link, searchInput);
-        message.channel.send(topLink)
+
+        // grab info box from page at topLink
+	const infoBoxHTML = await searchDOM(topLink, ".va-infobox", (selected: any) => {
+	    return selected.innerHTML; 
+	});	
+
+	const infoImage = await htmlToImage({
+	   html: infoBoxHTML,
+	   quality: 100,
+	   type: 'jpeg',
+	   puppeteerArgs: {
+	       args: ['--no-sandbox'],
+	   },
+	   encoding: 'buffer',
+	})
+
+	return message.channel.send(new MessageAttachment(infoImage, "test.jpg"));
+
     }
 }
 
