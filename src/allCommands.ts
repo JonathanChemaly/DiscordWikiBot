@@ -7,7 +7,7 @@ const allCommands: Map<string, Command> = new Map()
 
 allCommands.set('commands', commands)
 allCommands.set('ping', pingPong)
-allCommands.set('loadWiki', loadWiki)
+allCommands.set('load', loadWiki)
 allCommands.set('search', search)
 
 export default allCommands
