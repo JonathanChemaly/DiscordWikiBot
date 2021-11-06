@@ -27,21 +27,32 @@ const loadWiki: Command = {
 
         link = dom.window.document.querySelector("div .top-community > a").href
         console.log(link);
+        message.channel.send(link)
     }
 }
 
-var input = "";
+var searchInput = "";
+var searchText = "";
+var searchResult = "";
 const search: Command = {
     name: 'search',
     description: 'Searches for the information on the selected Wiki',
     hidden: false,
     disabled: false,
-    action: (_, message, args) => {
+    action: async (_, message, args) => {
         if (args == undefined) {
             return;
         }
-        input= args[0];
-        message.channel.send("Searching for " + input + " in the " + wiki + " wiki...")
+        console.log(link)
+        searchInput = args.join("+");
+        searchText = args.join(" ");
+        message.channel.send("Searching for " + searchText + " on the wiki..." )
+
+        const dom = await JSDOM.fromURL(link + 'wiki/Special:Search?fulltext=1&query=' + searchInput + '&scope=internal&contentType=&ns%5B0%5D=0#');
+        const topLink = dom.window.document.querySelector(".unified-search__result__header > a ").href
+        searchResult = topLink;
+        console.log(searchResult);
+        message.channel.send(searchResult)
     }
 }
 
