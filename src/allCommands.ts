@@ -1,7 +1,8 @@
 import commands from './commands/commands'
 import pingPong from './commands/pingPong'
 import Command from './model/Command'
-import {loadWiki, search} from './commands/loadWiki'
+import loadWiki from './commands/loadWiki'
+import search from './commands/search'
 
 const allCommands: Map<string, Command> = new Map()
 
