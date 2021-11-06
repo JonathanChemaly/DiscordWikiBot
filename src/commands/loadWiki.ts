@@ -1,11 +1,13 @@
 const https = require('https')
 const jsdom = require("jsdom");
+const fs = require('fs');
 const { JSDOM } = jsdom;
 
 import Command from '../model/Command'
 
 var wiki = "";
 var text = "";
+var link = "";
 
 const loadWiki: Command = {
     name: 'loadWiki',
@@ -16,24 +18,22 @@ const loadWiki: Command = {
         if (args == undefined){
             return;
         }
+
         text = args.join(' ');
         wiki = args.join('+');
         message.channel.send(text + " wiki was selected!")
 
-        https.get('https://www.fandom.com/?s=' + wiki, (res: any) => {
-            console.log('statusCode:', res.statusCode);
-            console.log('headwers:', res.headers);
+        const domPromise = JSDOM.fromURL('https://www.fandom.com/?s=' + wiki);
 
-            res.on('data', (d: any) => {
-                process.stdout.write(d);
-
-                const dom = new JSDOM(d);
-                console.log(dom.window.document.querySelector(".top-community").textContent);
+        domPromise
+            .then((dom: any) => {
+                const topCommunityLink = dom.window.document.querySelector("div .top-community > a").href
+                link = topCommunityLink;
+                console.log(link);
+            })
+            .catch((err: any) => {
+                console.log(err);
             });
-
-        }).on('error', (e: any) => {
-            console.error(e);
-        });
     }
 }
 
@@ -44,7 +44,7 @@ const search: Command = {
     hidden: false,
     disabled: false,
     action: (_, message, args) => {
-        if (args == undefined){
+        if (args == undefined) {
             return;
         }
         input= args[0];
@@ -52,4 +52,4 @@ const search: Command = {
     }
 }
 
-export {loadWiki, search} 
+export {loadWiki, search}
