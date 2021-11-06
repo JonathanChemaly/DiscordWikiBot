@@ -12,7 +12,7 @@ const commands: Command = {
         let textToSend = `Use each command with the prefix \`${config.commandPrefix}\`\n`
         allCommands.forEach((value, key) => {
             if (!value.hidden && !value.disabled) {
-                textToSend += `\n\`${key} ${value.argspf}\`` + ' - ' + value.description
+                textToSend += `\n\`${key} ${value.args}\`` + ' - ' + value.description
             }
         })
         message.channel.send(textToSend)
