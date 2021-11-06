@@ -14,7 +14,7 @@ const loadWiki: Command = {
     description: 'Select the wiki that you want to access',
     hidden: false,
     disabled: false,
-    action: (_, message, args) => {
+    action: async (_, message, args) => {
         if (args == undefined){
             return;
         }
@@ -23,17 +23,11 @@ const loadWiki: Command = {
         wiki = args.join('+');
         message.channel.send(text + " wiki was selected!")
 
-        const domPromise = JSDOM.fromURL('https://www.fandom.com/?s=' + wiki);
+        const dom = await JSDOM.fromURL('https://www.fandom.com/?s=' + wiki);
 
-        domPromise
-            .then((dom: any) => {
-                const topCommunityLink = dom.window.document.querySelector("div .top-community > a").href
-                link = topCommunityLink;
-                console.log(link);
-            })
-            .catch((err: any) => {
-                console.log(err);
-            });
+        const topCommunityLink = dom.window.document.querySelector("div .top-community > a").href
+        link = topCommunityLink;
+        console.log(link);
     }
 }
 
