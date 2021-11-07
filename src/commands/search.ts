@@ -3,6 +3,27 @@ import Command from '../model/Command'
 const htmlToImage = require('node-html-to-image')
 const { MessageAttachment } = require('discord.js')
 
+async function infoBoxFromLink(link: string) {    
+    const infoBox = await searchDOM(link, ".va-infobox", (selected: any) => {
+	return selected; 
+    });	
+
+    const style = globalData.dom.window.document;
+    console.log(style);
+    
+    const infoImage = await htmlToImage({
+	html: infoBox.innerHTML,
+	quality: 100,
+	type: 'jpeg',
+	puppeteerArgs: {
+	    args: ['--no-sandbox'],
+	},
+	encoding: 'buffer',
+    })
+    
+    return infoImage;
+}
+
 const search: Command = {
     name: 'Search for an Item',
     args: "[--in wiki]",
@@ -41,20 +62,7 @@ const search: Command = {
         const [topLink, name] = await searchForItem(link, searchInput);
 
         // grab info box from page at topLink
-	const infoBoxHTML = await searchDOM(topLink, ".va-infobox", (selected: any) => {
-	    return selected.innerHTML; 
-	});	
-
-	const infoImage = await htmlToImage({
-	   html: infoBoxHTML,
-	   quality: 100,
-	   type: 'jpeg',
-	   puppeteerArgs: {
-	       args: ['--no-sandbox'],
-	   },
-	   encoding: 'buffer',
-	})
-
+	const infoImage = await infoBoxFromLink(topLink);
 	return message.channel.send(new MessageAttachment(infoImage, "test.jpg"));
 
     }

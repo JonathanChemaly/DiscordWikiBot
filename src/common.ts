@@ -4,16 +4,18 @@ const { JSDOM } = jsdom;
 interface GlobalData {
     link: string
     wiki: string
+    dom: any
 }
 
 const globalData: GlobalData = {
     link: "",
-    wiki: ""
+    wiki: "",
+    dom: {}
 };
 
 async function search(url: String, selector: String, callback: Function) {
-    const dom = await JSDOM.fromURL(url);
-    const selected = dom.window.document.querySelector(selector);
+    globalData.dom = await JSDOM.fromURL(url);
+    const selected = globalData.dom.window.document.querySelector(selector);
     return callback(selected);
 }
 
