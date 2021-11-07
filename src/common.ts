@@ -1,42 +1,58 @@
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
 
-interface GlobalData {
-    link: string
-    wiki: string
-}
+class WikiReader {
+    wikiLink: string;
+    wikiName: string;
+    dom: any;
+    selection: any;
 
-const globalData: GlobalData = {
-    link: "",
-    wiki: ""
-};
+    constructor() {
+        this.wikiLink = "";
+        this.wikiName = "";
+        this.dom = undefined;
+        this.selection = undefined;
+    }
 
-async function search(url: String, selector: String, callback: Function) {
-    const dom = await JSDOM.fromURL(url);
-    const selected = dom.window.document.querySelector(selector);
-    return callback(selected);
-}
+    async loadDom(url: string) {
+        this.dom = await JSDOM.fromURL(url);
+    }
 
-async function searchForWiki(wikiName: String) {
-    return search(
-        'https://www.fandom.com/?s=' + wikiName,
-        "div .top-community > a",
-        (link: any) => {
-            const name = link.querySelector("div .top-community-name").innerHTML.trim();
-            return [link.href, name];
+    select(selector: string) {
+        this.selection = this.dom.window.document.querySelector(selector);
+    }
+
+    async searchForWiki(wikiSearch: string) {
+        const link = "https://www.fandom.com/?s=" + wikiSearch;
+        await this.loadDom(link);
+        this.select("div .top-community > a");
+        const wikiLink = this.selection.href;
+
+        this.select("div .top-community-name");
+        const wikiName = this.selection.innerHTML.trim();
+
+        return [wikiLink, wikiName];
+    }
+
+    async searchForItem(itemName: string, wikiOverride?: string) {
+        let wikiLink = this.wikiLink;
+
+        if (wikiOverride != undefined) {
+            wikiLink = wikiOverride;
         }
-    );
-}
 
-async function searchForItem(wikiLink: String, item: String) {
-    return search(
-        wikiLink + 'wiki/Special:Search?fulltext=1&query=' + item + '&scope=internal&contentType=&ns%5B0%5D=0#',
-        ".unified-search__result__header > a ",
-        (link: any) => {
-            return [link.href, link.innerHTML.trim()];
+        if (wikiLink == undefined) {
+            return ["", ""]
         }
-    );
+
+        const link = `${wikiLink}wiki/Special:Search?fulltext=1&query=${itemName}&scope=internal&contentType=&ns%5B0%5D=0#`;
+        await this.loadDom(link);
+        this.select(".unified-search__result__header > a");
+
+        return [this.selection.href, this.selection.innerHTML.trim()];
+    }
 }
 
+const wikiReader = new WikiReader();
 
-export { globalData, search, searchForWiki, searchForItem }
+export default wikiReader;

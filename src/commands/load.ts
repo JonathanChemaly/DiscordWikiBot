@@ -1,6 +1,5 @@
-import { globalData, searchForWiki } from '../common'
-
 import Command from '../model/Command'
+import wikiReader from '../common'
 
 const load: Command = {
     name: 'Load a Wiki',
@@ -13,11 +12,13 @@ const load: Command = {
             return;
         }
 
-        [globalData.link, globalData.wiki] = await searchForWiki(args.join('+'));
+        const [wl, wn] = await wikiReader.searchForWiki(args.join('+'));
+        wikiReader.wikiLink = wl
+        wikiReader.wikiName = wn
 
-        message.channel.send(`Loading ${globalData.wiki}`);
-        message.channel.send("Link: " + globalData.link);
-        client.user?.setActivity(globalData.wiki)
+        message.channel.send(`Loading ${wn}`);
+        message.channel.send(`Link: ${wl}`);
+        client.user?.setActivity(wikiReader.wikiName);
     }
 }
 
